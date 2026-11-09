@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+
+# Database
+*.sqlite3
+*.db
+
+# Environment secrets
+.env
+.env.*
+
+# Model weights
+*.pt
+*.pth
+*.onnx
+
+# Cache and IDE
+.pytest_cache/
+.DS_Store
+.vscode/

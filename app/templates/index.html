@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Real Object Detection System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/style.css?v=5" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand-wrap">
+          <div class="brand-mark">RO</div>
+          <div>
+            <h1>Real Object Detection System</h1>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-item active" data-target="dashboard">Dashboard</button>
+          <button class="nav-item" data-target="live">Live Detection</button>
+          <button class="nav-item" data-target="analytics">Analytics</button>
+          <button class="nav-item" data-target="history">Detection History</button>
+          <button class="nav-item" data-target="settings">Settings</button>
+          <button class="nav-item" data-target="about">About</button>
+          <button class="nav-item" data-target="contact">Contact</button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <span class="status-pill"><span class="status-dot"></span> System Online</span>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <section id="dashboard" class="panel active">
+          <div class="topbar">
+            <div>
+              <p class="eyebrow">Overview</p>
+              <h2>Dashboard</h2>
+            </div>
+            <button id="refreshMetrics" class="primary-btn">Refresh</button>
+          </div>
+          <p id="dashboardError" class="dashboard-error" role="alert" hidden></p>
+
+          <div class="stats-grid">
+            <article class="stat-card">
+              <div class="stat-label">Total Detections</div>
+              <div class="stat-value" id="dashTotalDetections">—</div>
+              <div class="stat-meta">Live backend count</div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-label">Visible Objects</div>
+              <div class="stat-value" id="dashVisibleObjects">—</div>
+              <div class="stat-meta">Detected in frame</div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-label">Total IN</div>
+              <div class="stat-value accent-green" id="dashInTotal">—</div>
+              <div class="stat-meta">Upper to lower crossing</div>
+            </article>
+            <article class="stat-card">
+              <div class="stat-label">Total OUT</div>
+              <div class="stat-value accent-red" id="dashOutTotal">—</div>
+              <div class="stat-meta">Lower to upper crossing</div>
+            </article>
+          </div>
+
+          <div class="chart-grid">
+            <div class="chart-card large">
+              <h3>Detection Activity</h3>
+              <p id="activityChartState" class="analytics-state" role="status">Loading analytics data…</p>
+              <canvas id="activityChart"></canvas>
+            </div>
+            <div class="chart-card">
+              <h3>Entry vs Exit</h3>
+              <p id="inOutChartState" class="analytics-state" role="status">Loading analytics data…</p>
+              <canvas id="inOutChart"></canvas>
+            </div>
+          </div>
+
+          <div class="info-grid">
+            <div class="chart-card">
+              <h3>Object Distribution</h3>
+              <p id="distributionChartState" class="analytics-state" role="status">Loading analytics data…</p>
+              <canvas id="distributionChart"></canvas>
+            </div>
+            <div class="chart-card">
+              <h3>System Overview</h3>
+              <ul class="system-list">
+                <li><span>YOLO-World</span><strong id="systemModelStatus">Loading...</strong></li>
+                <li><span>Device</span><strong id="systemDevice">—</strong></li>
+                <li><span>GPU</span><strong id="systemGpu">—</strong></li>
+                <li><span>Status</span><strong id="systemStatus">—</strong></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="live" class="panel">
+          <div class="topbar">
+            <div>
+              <p class="eyebrow">Camera Feed</p>
+              <h2>Live Detection</h2>
+              <p id="liveFps" class="live-fps" role="status" aria-live="polite">FPS: 0</p>
+            </div>
+            <div class="button-row">
+              <button id="startCamera" class="primary-btn">Start Camera</button>
+              <button id="stopCamera" class="secondary-btn">Stop</button>
+            </div>
+          </div>
+
+          <div class="live-grid">
+            <div class="video-card">
+              <div class="camera-placeholder">
+                <video id="cameraVideo" autoplay playsinline muted hidden></video>
+                <img id="cameraFrame" alt="Annotated live detection feed" hidden />
+                <p id="cameraMessage" class="camera-message">Start the camera to view the live feed.</p>
+              </div>
+              <p id="cameraStatus" class="camera-status" role="status" aria-live="polite">Camera stopped</p>
+              <div class="live-metrics">
+                <span><strong id="liveIn">0</strong> IN</span>
+                <span><strong id="liveOut">0</strong> OUT</span>
+                <span><strong id="liveCurrent">0</strong> Visible</span>
+              </div>
+            </div>
+            <div class="info-card">
+              <h3>Current Objects</h3>
+              <ul id="objectList" class="object-list"></ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="analytics" class="panel">
+          <div class="topbar">
+            <div>
+              <p class="eyebrow">Insights</p>
+              <h2>Analytics</h2>
+            </div>
+            <button id="refreshAnalytics" class="primary-btn">Refresh</button>
+          </div>
+          <div class="analytics-grid">
+            <div class="chart-card">
+              <h3>Traffic Flow</h3>
+              <p id="trafficChartState" class="analytics-state" role="status">Loading analytics data…</p>
+              <canvas id="trafficChart"></canvas>
+            </div>
+            <div class="chart-card">
+              <h3>Recent Events</h3>
+              <p id="recentEventsState" class="analytics-state" role="status">Loading recent events…</p>
+              <ul id="recentEventsList" class="mini-list"></ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="history" class="panel">
+          <div class="topbar">
+            <div>
+              <p class="eyebrow">Log</p>
+              <h2>Detection History</h2>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Object</th>
+                  <th>Event</th>
+                  <th>Confidence</th>
+                  <th>Tracking ID</th>
+                </tr>
+              </thead>
+              <tbody id="historyTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="settings" class="panel">
+          <div class="topbar">
+            <div>
+              <p class="eyebrow">Controls</p>
+              <h2>Settings</h2>
+            </div>
+          </div>
+          <div class="settings-grid">
+            <form id="settingsForm" class="settings-form">
+              <div class="field-group">
+                <label for="confidence">Confidence threshold</label>
+                <input id="confidence" type="number" min="0.05" max="0.95" step="0.05" value="0.25" />
+              </div>
+              <div class="field-group">
+                <label for="iou">IoU threshold</label>
+                <input id="iou" type="number" min="0.1" max="0.95" step="0.05" value="0.5" />
+              </div>
+              <div class="field-group">
+                <label for="lineY">Counting line position</label>
+                <input id="lineY" type="number" min="0.1" max="0.9" step="0.05" value="0.72" />
+              </div>
+              <div class="field-group">
+                <label for="prompts">Object prompts</label>
+                <textarea id="prompts" rows="7">person, bottle, mobile phone, book, backpack, handbag, eyeglasses, pen, ballpoint pen, pencil, charger, adapter, usb cable, computer mouse, keyboard, laptop, monitor, chair, cup, scissors, screwdriver, hammer, electronic component</textarea>
+              </div>
+              <button type="submit" class="primary-btn">Save settings</button>
+              <p id="settingsStatus" class="settings-status" role="status" hidden></p>
+            </form>
+          </div>
+        </section>
+
+        <section id="about" class="panel">
+          <div class="topbar">
+            <div>
+              <p class="eyebrow">Information</p>
+              <h2>About</h2>
+            </div>
+          </div>
+          <div class="content-card">
+            <p>The Real Object Detection System is a live AI-powered vision demo that uses YOLO-World for object recognition and ByteTrack for persistent ID tracking. It is designed for real-time monitoring, object counting, and analytics in a browser-based workflow.</p>
+          </div>
+        </section>
+
+        <section id="contact" class="panel">
+          <div class="topbar">
+            <div>
+              <p class="eyebrow">Support</p>
+              <h2>Contact</h2>
+            </div>
+          </div>
+          <div class="content-card">
+            <p>Email: hello@realobjectdetection.example</p>
+            <p>Phone: +1 (555) 012-3456</p>
+            <p>Address: 1200 Vision Avenue, San Francisco, CA</p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/static/js/fps.js?v=1"></script>
+    <script src="/static/js/app.js?v=5"></script>
+  </body>
+</html>
